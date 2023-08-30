@@ -1,9 +1,7 @@
 #include <Arduino.h>
-//free PINS 5, 0
-
-//#define INTERNAL_LED 2
 
 // Stromkasten 1 ------------------------------------------------------------
+// Set IO-Pins - These are the PINS which are used on the ESP32
 const int RED_LED_PIN_1 = 2;
 const int SENSOR_SOLAR_PIN_1= 36;
 const int SENSOR_WIND_PIN_1 = 33;
@@ -13,7 +11,7 @@ const int SENSOR_LOAD_PIN_3_1 = 26;
 const int SENSOR_LOAD_PIN_4_1 = 25;
 const int SENSOR_LOAD_PIN_5_1 = 14;
 const int SENSOR_LOAD_PIN_6_1 = 12;
-
+// Set Booleans - These are used to determine, if a load is connected to the electrical panel (true, if Pin connected to electrical panel)
 bool sensorStateSolar_1;
 bool sensorStateWind_1;
 bool sensorStateLoad_1_1;
@@ -22,12 +20,12 @@ bool sensorStateLoad_3_1;
 bool sensorStateLoad_4_1;
 bool sensorStateLoad_5_1;
 bool sensorStateLoad_6_1;
-
+// This is used determine, if the electrical panel is overloaded (true, if maxEnergyCapacity_1 > currentEnergyLoad_1)
 bool isOverloaded_1;
-
+// These are used for the value of the current load attached to the electrical panel and the Limit it can hold
 int currentEnergyLoad_1;
 int maxEnergyCapacity_1;
-
+// Sets the value of currentEnergyLoad_1
 int getCurrentEnergyLoad_1() {
   int trueCount_1 = 0;
   if (!sensorStateLoad_1_1) {
@@ -53,6 +51,7 @@ int getCurrentEnergyLoad_1() {
 }
 
 // Stromkasten 2 ------------------------------------------------------------
+// Set IO-Pins - These are the PINS which are used on the ESP32
 const int RED_LED_PIN_2 = 19;
 const int SENSOR_SOLAR_PIN_2= 22;
 const int SENSOR_WIND_PIN_2 = 21;
@@ -62,7 +61,7 @@ const int SENSOR_LOAD_PIN_3_2 = 13;
 const int SENSOR_LOAD_PIN_4_2 = 32;
 const int SENSOR_LOAD_PIN_5_2 = 15;
 const int SENSOR_LOAD_PIN_6_2 = 39;
-
+// Set Booleans - These are used to determine, if a load is connected to the electrical panel (true, if Pin connected to electrical panel)
 bool sensorStateSolar_2;
 bool sensorStateWind_2;
 bool sensorStateLoad_1_2;
@@ -71,12 +70,12 @@ bool sensorStateLoad_3_2;
 bool sensorStateLoad_4_2;
 bool sensorStateLoad_5_2;
 bool sensorStateLoad_6_2;
-
+// This is used determine, if the electrical panel is overloaded (true, if maxEnergyCapacity_2 > currentEnergyLoad_2)
 bool isOverloaded_2;
-
+// These are used for the value of the current load attached to the electrical panel and the Limit it can hold
 int currentEnergyLoad_2;
 int maxEnergyCapacity_2;
-
+// Sets the value of currentEnergyLoad_2
 int getCurrentEnergyLoad_2() {
   int trueCount_2 = 0;
   if (!sensorStateLoad_1_2) {
@@ -101,7 +100,7 @@ int getCurrentEnergyLoad_2() {
   return currentEnergyLoad_2;
 }
 
-//Functions ----------------------------------------------------------------
+// This function reads the pins attached to the electrical panel and sets booleans accordingly 
 void readSensorStates() {
   //Stromkasten 1
   sensorStateSolar_1 = digitalRead(SENSOR_SOLAR_PIN_1);
@@ -123,6 +122,7 @@ void readSensorStates() {
   sensorStateLoad_6_2 = analogRead(SENSOR_LOAD_PIN_6_2);
 }
 
+// Sets the value of MaxEnergyCapacity of the electrical panel
 void setMaxEnergyCapacity() {
   //Stromkasten 1
   if (sensorStateSolar_1 && sensorStateWind_1) {
@@ -137,7 +137,7 @@ void setMaxEnergyCapacity() {
     maxEnergyCapacity_2 = (sensorStateSolar_2 || sensorStateWind_2) ? 4 : 3;
   }
 }
-
+// Check if electrical panel is overloaded (true, if currentEnergyLoad > maxEnergyCapacity)
 void checkIfOverloaded() {
   if(getCurrentEnergyLoad_1() > maxEnergyCapacity_1){
     isOverloaded_1 = true;
@@ -150,7 +150,7 @@ void checkIfOverloaded() {
     isOverloaded_2 = false;
   }
 }
-
+// Prints to Console all the Values
 void printValues() {
   Serial.print(" Capacity_1 = ");
   Serial.print(maxEnergyCapacity_1);
@@ -218,20 +218,14 @@ void setup() {
 }
 
 void loop() {
-  //readSensorStates();
-  //setMaxEnergyCapacity();
-  //checkIfOverloaded();
-  printValues();
+  readSensorStates();
+  setMaxEnergyCapacity();
+  checkIfOverloaded();
+  
+  //printValues();
   //printAnalogValues_1();
   //printAnalogValues_2();
   
-  
-
-  digitalWrite(SENSOR_LOAD_PIN_2_2, HIGH);
-  digitalWrite(SENSOR_LOAD_PIN_3_2, HIGH);
-  
-
-
   if (isOverloaded_1) {
     digitalWrite(RED_LED_PIN_1, HIGH);
   } else {
